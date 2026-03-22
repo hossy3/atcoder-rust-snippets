@@ -209,6 +209,25 @@
       "}"
     ]
   },
+  "floyd_warshall": {
+    "prefix": "_floyd_warshall",
+    "description": "ワーシャルフロイド法 (floyd_warshall) で、重み付きグラフの全ペアの最短経路を解く",
+    "body": [
+      "/// ワーシャルフロイド法 (floyd_warshall) で、重み付きグラフの全ペアの最短経路を解く",
+      "/// * `d`: 隣接行列 (d[u][v] が `u` から `v` への重み。 移動不可能は `usize::MAX` で示す)",
+      "fn floyd_warshall(mut d: Vec<Vec<usize>>) -> Vec<Vec<usize>> {",
+      "\tlet n = d.len();",
+      "\tfor k in 0..n {",
+      "\t\tfor i in 0..n {",
+      "\t\t\tfor j in 0..n {",
+      "\t\t\t\td[i][j] = d[i][j].min(d[i][k].saturating_add(d[k][j]));",
+      "\t\t\t}",
+      "\t\t}",
+      "\t}",
+      "\td",
+      "}"
+    ]
+  },
   // algorithm:
   "knapsack": {
     "prefix": "_knapsack",
@@ -380,6 +399,89 @@
       ""
     ],
     "description": "Your description."
+  },
+  // データ構造
+  "lazysegtree_maxadd": {
+    "prefix": "_lazysegtree_maxadd",
+    "description": "遅延セグメント木 区間加算 区間最大値",
+    "body": [
+      "/// 遅延セグメント木 区間加算 区間最大値",
+      "/// # Examples",
+      "/// ```",
+      "/// let mut segtree: LazySegtree<MaxAdd> = vec![0usize; w].into();",
+      "/// ```",
+      "struct MaxAdd;",
+      "impl MapMonoid for MaxAdd {",
+      "\ttype M = Max<usize>;",
+      "\ttype F = usize;",
+      "",
+      "\tfn identity_map() -> Self::F {",
+      "\t\t0",
+      "\t}",
+      "\tfn mapping(&f: &Self::F, &x: &<Self::M as Monoid>::S) -> <Self::M as Monoid>::S {",
+      "\t\tf + x",
+      "\t}",
+      "\tfn composition(&f: &Self::F, &g: &Self::F) -> Self::F {",
+      "\t\tf + g",
+      "\t}",
+      "}"
+    ]
+  },
+  "lazysegtree_addadd": {
+    "prefix": "_lazysegtree_addadd",
+    "description": "遅延セグメント木 区間加算 区間和",
+    "body": [
+      "/// 遅延セグメント木 区間加算 区間和 (区間の大きさも保持する)",
+      "/// # Examples",
+      "/// ```",
+      "/// let mut segtree: LazySegtree<AddAdd> = (0..10).map(|&x| (1, x)).collect::<Vec<_>>().into();",
+      "/// ```",
+      "pub struct AddAddM;",
+      "impl Monoid for AddAddM {",
+      "\ttype S = (usize, usize); // (区間, 値)",
+      "\tfn identity() -> Self::S {",
+      "\t\t(1, 0)",
+      "\t}",
+      "\tfn binary_operation(a: &Self::S, b: &Self::S) -> Self::S {",
+      "\t\t(a.0 + b.0, a.1 + b.1)",
+      "\t}",
+      "}",
+      "",
+      "struct AddAdd;",
+      "impl MapMonoid for AddAdd {",
+      "\ttype M = AddAddM;",
+      "\ttype F = usize;",
+      "",
+      "\tfn identity_map() -> Self::F {",
+      "\t\t0",
+      "\t}",
+      "\tfn mapping(&f: &Self::F, &x: &<Self::M as Monoid>::S) -> <Self::M as Monoid>::S {",
+      "\t\t(x.0, x.1 + f * x.0)",
+      "\t}",
+      "\tfn composition(&f: &Self::F, &g: &Self::F) -> Self::F {",
+      "\t\tf + g",
+      "\t}",
+      "}"
+    ]
+  },
+  "inversion": {
+    "prefix": "_inversion",
+    "description": "転倒数 (inversion) を求める",
+    "body": [
+      "/// 転倒数 (inversion) を求める",
+      "/// * `a` - 0 開始の配列。 例: `[3, 1, 4, 2, 0]`",
+      "fn inversion(a: &[usize]) -> usize {",
+      "\tlet n = a.len();",
+      "\tlet mut tree = FenwickTree::new(n, 0usize);",
+      "\tlet mut count = 0usize;",
+      "\tfor (_, &xr) in a.iter().enumerate() {",
+      "\t\ttree.add(xr, 1);",
+      "\t\tcount += tree.sum((xr + 1)..);",
+      "\t}",
+      "",
+      "\tcount",
+      "}"
+    ]
   },
   // misc
   "count_grid_by_imos_2d": {
