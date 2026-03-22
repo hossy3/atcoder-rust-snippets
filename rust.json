@@ -353,37 +353,6 @@
       "}"
     ]
   },
-  "name": {
-    "prefix": "",
-    "description": "",
-    "body": [
-      "/// (r1 - r0) * (c1 - c0) の大きさの長方形を重ねた時に、各グリッドに何枚あるかを imos 2D で求める",
-      "fn count_grid_by_imos_2d(n: usize, rc: &[(usize, usize, usize, usize)]) -> Vec<Vec<usize>> {",
-      "\tlet mut imos = vec![vec![0isize; n + 1]; n + 1];",
-      "\tfor &(r0, c0, r1, c1) in rc {",
-      "\t\timos[r0][c0] += 1;",
-      "\t\timos[r1 + 1][c0] -= 1;",
-      "\t\timos[r0][c1 + 1] -= 1;",
-      "\t\timos[r1 + 1][c1 + 1] += 1;",
-      "\t}",
-      "",
-      "\tlet mut counts = vec![vec![0isize; n + 1]; n + 1];",
-      "\tfor x in 0..n {",
-      "\t\tfor y in 0..n {",
-      "\t\t\tcounts[x + 1][y + 1] = counts[x][y + 1] + counts[x + 1][y] - counts[x][y] + imos[x][y];",
-      "\t\t}",
-      "\t}",
-      "",
-      "\tlet mut results = vec![vec![0; n]; n];",
-      "\tfor x in 0..n {",
-      "\t\tfor y in 0..n {",
-      "\t\t\tresults[x][y] = counts[x + 1][y + 1] as usize;",
-      "\t\t}",
-      "\t}",
-      "\tresults",
-      "}"
-    ]
-  },
   "bit_test": {
     "prefix": "_bit_test",
     "body": [
@@ -399,6 +368,40 @@
       ""
     ],
     "description": "Your description."
+  },
+  "bit_subset": {
+    "prefix": "_bit_subset",
+    "description": "ビット集合の部分集合を列挙するイテレータを返す",
+    "body": [
+      "struct BitSubset {",
+      "\tstart: usize,",
+      "\tnext: Option<usize>,",
+      "}",
+      "",
+      "impl Iterator for BitSubset {",
+      "\ttype Item = usize;",
+      "",
+      "\tfn next(&mut self) -> Option<Self::Item> {",
+      "\t\tlet cur = self.next;",
+      "\t\tif let Some(x) = self.next {",
+      "\t\t\tself.next = if x > 0 {",
+      "\t\t\t\tSome((x - 1) & self.start)",
+      "\t\t\t} else {",
+      "\t\t\t\tNone",
+      "\t\t\t};",
+      "\t\t}",
+      "\t\tcur",
+      "\t}",
+      "}",
+      "",
+      "/// ビット集合の部分集合を列挙するイテレータを返す",
+      "fn bit_subset(start: usize) -> BitSubset {",
+      "\tBitSubset {",
+      "\t\tstart,",
+      "\t\tnext: Some(start),",
+      "\t}",
+      "}"
+    ]
   },
   // データ構造
   "lazysegtree_maxadd": {
