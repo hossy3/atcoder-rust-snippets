@@ -76,6 +76,7 @@
   },
   "build_primes": {
     "prefix": "_build_primes",
+    "description": "素数列挙",
     "body": [
       "fn build_primes(n: usize) -> Vec<usize> {",
       "\tlet mut primes = vec![true; n + 1];",
@@ -101,11 +102,11 @@
       "\tresult",
       "}",
       ""
-    ],
-    "description": "素数列挙"
+    ]
   },
   "prime_division": {
     "prefix": "_prime_division",
+    "description": "素因数分解 (Prime division)",
     "body": [
       "fn prime_division(mut n: usize) -> Vec<(usize, usize)> {",
       "\tlet mut result = vec![];",
@@ -127,10 +128,22 @@
       "\tresult",
       "}",
       ""
-    ],
-    "description": "素因数分解"
+    ]
   },
   // graph:
+  "build_digraph": {
+    "prefix": "_build_digraph",
+    "description": "有向グラフ組み立て (build directed graph)",
+    "body": [
+      "fn build_digraph(n: usize, uv: &[(usize, usize)]) -> Vec<Vec<usize>> {",
+      "\tlet mut graph = vec![vec![]; n]; // node, edge",
+      "\tfor &(u, v) in uv {",
+      "\t\tgraph[u].push(v);",
+      "\t}",
+      "\tgraph",
+      "}"
+    ]
+  },
   "build_ungraph": {
     "prefix": "_build_ungraph",
     "description": "無向グラフ組み立て (build undirected graph)",
@@ -209,6 +222,30 @@
       "}"
     ]
   },
+  "shortest_all_graph": {
+    "prefix": "_shortest_all_graph",
+    "body": [
+      "fn shortest_all_ungraph(s: usize, graph: &[Vec<usize>]) -> Vec<Option<usize>> {",
+      "\tlet n = graph.len();",
+      "\tlet mut v = vec![None; n];",
+      "\tlet mut queue = VecDeque::new();",
+      "\tv[s] = Some(0usize);",
+      "\tqueue.push_back((0, s));",
+      "",
+      "\twhile let Some((step, i)) = queue.pop_front() {",
+      "\t\tfor &j in &graph[i] {",
+      "\t\t\tif v[j] == None {",
+      "\t\t\t\tv[j] = Some(step + 1);",
+      "\t\t\t\tqueue.push_back((step + 1, j));",
+      "\t\t\t}",
+      "\t\t}",
+      "\t}",
+      "\tv",
+      "}",
+      ""
+    ],
+    "description": "All shortest path length of undirected graph."
+  },
   "floyd_warshall": {
     "prefix": "_floyd_warshall",
     "description": "ワーシャルフロイド法 (floyd_warshall) で、重み付きグラフの全ペアの最短経路を解く",
@@ -225,6 +262,25 @@
       "\t\t}",
       "\t}",
       "\td",
+      "}"
+    ]
+  },
+  "is_bipartite_graph": {
+    "prefix": "_is_bipartite_graph",
+    "description": "二部グラフ (Bipartite graph) かを判定する",
+    "body": [
+      "fn is_bipartite_graph(n: usize, ab: &[(usize, usize)]) -> bool {",
+      "\tlet mut uf = Dsu::new(n * 2);",
+      "\tfor &(a, b) in ab {",
+      "\t\tuf.merge(a, b + n);",
+      "\t\tuf.merge(b, a + n);",
+      "\t}",
+      "\tfor i in 0..n {",
+      "\t\tif uf.same(i, i + n) {",
+      "\t\t\treturn false;",
+      "\t\t}",
+      "\t}",
+      "\ttrue",
       "}"
     ]
   },
@@ -313,6 +369,39 @@
       "\t}"
     ],
     "description": "Longest increasing subsequence"
+  },
+  "shortest_2dmap": {
+    "prefix": "_shortest_2dmap",
+    "body": [
+      "/// 2次元マップ上の sxy から gxy への最短経路を求める",
+      "fn shortest_2dmap(m: &mut [Vec<bool>], sxy: &(usize, usize), gxy: &(usize, usize)) -> usize {",
+      "\tuse std::{cmp::Reverse, collections::BinaryHeap};",
+      "",
+      "\tlet mut queue = BinaryHeap::new();",
+      "\tm[sxy.0][sxy.1] = false;",
+      "\tqueue.push((Reverse(0), *sxy));",
+      "",
+      "\twhile let Some((Reverse(step), xy)) = queue.pop() {",
+      "\t\tif xy.0 == gxy.0 && xy.1 == gxy.1 {",
+      "\t\t\treturn step;",
+      "\t\t}",
+      "\t\tlet a = [",
+      "\t\t\t(xy.0 - 1, xy.1),",
+      "\t\t\t(xy.0 + 1, xy.1),",
+      "\t\t\t(xy.0, xy.1 - 1),",
+      "\t\t\t(xy.0, xy.1 + 1),",
+      "\t\t];",
+      "\t\tfor &xy in &a {",
+      "\t\t\tif m[xy.0][xy.1] {",
+      "\t\t\t\tm[xy.0][xy.1] = false;",
+      "\t\t\t\tqueue.push((Reverse(step + 1), xy))",
+      "\t\t\t}",
+      "\t\t}",
+      "\t}",
+      "\tpanic!();",
+      "}"
+    ],
+    "description": "Calculate shortest path length of 2D map."
   },
   // geometry:
   "partition_point_range": {
@@ -403,6 +492,41 @@
       "}"
     ]
   },
+  "two_pointer": {
+    "prefix": "_two_pointer",
+    "description": "尺取り法 (Two pointer technique)",
+    "body": [
+      "/// 尺取り法 (Two pointer technique) で条件を満たす区間の最大長さを求める例",
+      "fn two_pointer(k: isize, a: &[isize]) -> usize {",
+      "\tlet n = a.len();",
+      "",
+      "\tlet mut result = 0;",
+      "\tlet mut r = 0;",
+      "\tlet mut set: BTreeSet<(isize, usize)> = BTreeSet::new();",
+      "\tfor l in 0..n {",
+      "\t\twhile r < a.len()",
+      "\t\t\t&& (set.len() == 0",
+      "\t\t\t\t|| set.last().unwrap().0.max(a[r]) - set.first().unwrap().0.min(a[r]) <= k)",
+      "\t\t{",
+      "\t\t\tset.insert((a[r], r));",
+      "\t\t\tr += 1;",
+      "\t\t\tresult = result.max(set.len());",
+      "\t\t}",
+      "\t\tset.remove(&(a[l], l));",
+      "\t}",
+      "\tresult",
+      "}"
+    ]
+  },
+  "has_intersect": {
+    "prefix": "_has_intersect",
+    "description": "干渉があるか (接触は含まない)",
+    "body": [
+      "fn has_intersect((x0, x1): (usize, usize), (x2, x3): (usize, usize)) -> bool {",
+      "\tx0.max(x2) < x1.min(x3)",
+      "}"
+    ]
+  },
   // データ構造
   "lazysegtree_maxadd": {
     "prefix": "_lazysegtree_maxadd",
@@ -467,6 +591,101 @@
       "}"
     ]
   },
+  "ordered_disjoint_tree": {
+    "prefix": "_ordered_disjoint_tree",
+    "description": "Ordered Disjoint Tree (ODT) 「値が同じ連続区間」を set で管理する",
+    "body": [
+      "/// Ordered Disjoint Tree (ODT) を初期設定する",
+      "fn ordered_disjoint_tree_init(c: &[usize]) -> (BTreeSet<(usize, usize)>, FenwickTree<isize>) {",
+      "\tlet n = c.len();",
+      "\tlet mut set: BTreeSet<(usize, usize)> = BTreeSet::new();",
+      "\tlet mut fenwick = FenwickTree::new(n + 1, 0isize);",
+      "\tfor (i, &c) in c.iter().enumerate() {",
+      "\t\tif i == 0 || c != set.last().unwrap().1 {",
+      "\t\t\tset.insert((i, c));",
+      "\t\t\tfenwick.add(i, 1);",
+      "\t\t}",
+      "\t}",
+      "\t(set, fenwick)",
+      "}",
+      "",
+      "/// [l, r) の範囲を x に置き換える",
+      "fn ordered_disjoint_tree_assign(",
+      "\tset: &mut BTreeSet<(usize, usize)>,",
+      "\tfenwick: &mut FenwickTree<isize>,",
+      "\tl: usize,",
+      "\tr: usize,",
+      "\tx: usize,",
+      ") {",
+      "\tlet (_, xl) = *set.range((0, 0)..(l, 0)).last().unwrap_or(&(0, usize::MAX));",
+      "\tlet (_, xr) = *set.range((0, 0)..(r + 1, 0)).last().unwrap();",
+      "",
+      "\twhile let Some(&(i, c)) = set.range((l, 0)..(r + 1, 0)).last() {",
+      "\t\tset.remove(&(i, c));",
+      "\t\tfenwick.add(i, -1);",
+      "\t}",
+      "",
+      "\tif xl != x {",
+      "\t\tset.insert((l, x));",
+      "\t\tfenwick.add(l, 1);",
+      "\t}",
+      "\tif xr != x {",
+      "\t\tset.insert((r, xr));",
+      "\t\tfenwick.add(r, 1);",
+      "\t}",
+      "}",
+      "",
+      "/// [l, r) の同じ値が連続する区間数を返す",
+      "fn ordered_disjoint_tree_count(fenwick: &FenwickTree<isize>, l: usize, r: usize) -> isize {",
+      "\tif l + 1 <= r {",
+      "\t\tfenwick.sum((l + 1)..r) + 1",
+      "\t} else {",
+      "\t\t0",
+      "\t}",
+      "}"
+    ]
+  },
+  "hilbert_order": {
+    "prefix": "_hilbert_order",
+    "description": "ヒルベルト曲線 (Hilbert curve) の順に 2次元座標を変換して返す",
+    "body": [
+      "fn hilbert_order(mut x: usize, mut y: usize) -> usize {",
+      "\tconst MAX: usize = 1 << 31;",
+      "",
+      "\tlet mut d = 0;",
+      "\tlet mut s = MAX >> 1;",
+      "\twhile s > 0 {",
+      "\t\tlet rx = (x & s) > 0;",
+      "\t\tlet ry = (y & s) > 0;",
+      "\t\tlet r = (if rx { 3 } else { 0 }) ^ (if ry { 1 } else { 0 });",
+      "\t\td += s * s * r;",
+      "\t\ts = s >> 1;",
+      "\t\tif ry {",
+      "\t\t\tcontinue;",
+      "\t\t}",
+      "\t\tif rx {",
+      "\t\t\tx = MAX - 1 - x;",
+      "\t\t\ty = MAX - 1 - y;",
+      "\t\t}",
+      "\t\tswap(&mut x, &mut y);",
+      "\t}",
+      "\td",
+      "}"
+    ]
+  },
+  "sliding_window_push_max": {
+    "prefix": "_sliding_window_push_max",
+    "description": "スライド最小値・スライド最大値 (Sliding Window Aggregation, SWAG)",
+    "body": [
+      "/// スライド最小値・スライド最大値 (Sliding Window Aggregation, SWAG)",
+      "fn sliding_window_push_max(deque: &mut VecDeque<(usize, isize)>, i: usize, value: isize) {",
+      "\twhile deque.len() > 0 && deque[deque.len() - 1].1 <= value {",
+      "\t\tdeque.pop_back();",
+      "\t}",
+      "\tdeque.push_back((i, value));",
+      "}"
+    ]
+  },
   "inversion": {
     "prefix": "_inversion",
     "description": "転倒数 (inversion) を求める",
@@ -518,34 +737,47 @@
       "}"
     ]
   },
+  "compress_coordinates": {
+    "prefix": "_compress_coordinates",
+    "description": "座標圧縮 (Compress coordinates)",
+    "body": [
+      "/// 座標圧縮 (Compress coordinates)",
+      "fn compress_coordinates(a: &[usize]) -> Vec<usize> {",
+      "\tlet mut sorted = a.to_vec();",
+      "\tsorted.sort_unstable();",
+      "\tsorted.dedup();",
+      "\tlet mut map = std::collections::HashMap::new();",
+      "\tfor (i, &x) in sorted.iter().enumerate() {",
+      "\t\tmap.insert(x, i);",
+      "\t}",
+      "\ta.iter().map(|&x| map[&x]).collect()",
+      "}"
+    ]
+  },
   "meet_in_the_middle": {
     "prefix": "_meet_in_the_middle",
-    "description": "半分全列挙",
+    "description": "半分全列挙 (Meet in the middle)",
     "body": [
       "/// 半分全列挙: a から複数選んで和を s にする組み合わせ数の例",
       "fn meet_in_the_middle(s: usize, a: &[usize]) -> usize {",
       "\tlet n = a.len();",
       "\tassert!(n <= 40);",
       "",
-      "\tlet mut m0 = HashMap::new();",
-      "\tm0.insert(0usize, 1usize);",
-      "\tfor &x in &a[..(n / 2)] {",
-      "\t\tlet mut m = m0.clone();",
-      "\t\tfor (&k, &v) in &m0 {",
-      "\t\t\t*m.entry(k + x).or_insert(0) += v;",
+      "\tfn f(a: &[usize]) -> HashMap<usize, usize> {",
+      "\t\tlet mut m = HashMap::new();",
+      "\t\tm.insert(0usize, 1usize);",
+      "\t\tfor &x in a {",
+      "\t\t\tlet mut m0 = m.clone();",
+      "\t\t\tfor (&k, &v) in &m {",
+      "\t\t\t\t*m0.entry(k + x).or_insert(0) += v;",
+      "\t\t\t}",
+      "\t\t\tm = m0;",
       "\t\t}",
-      "\t\tm0 = m;",
+      "\t\tm",
       "\t}",
       "",
-      "\tlet mut m1 = HashMap::new();",
-      "\tm1.insert(0usize, 1usize);",
-      "\tfor &x in &a[(n / 2)..] {",
-      "\t\tlet mut m = m1.clone();",
-      "\t\tfor (&k, &v) in &m1 {",
-      "\t\t\t*m.entry(k + x).or_insert(0) += v;",
-      "\t\t}",
-      "\t\tm1 = m;",
-      "\t}",
+      "\tlet m0 = f(&a[..(n / 2)]);",
+      "\tlet m1 = f(&a[(n / 2)..]);",
       "",
       "\tlet mut result = 0usize;",
       "\tfor (&k0, &v0) in &m0 {",
