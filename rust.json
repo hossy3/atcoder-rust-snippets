@@ -208,8 +208,8 @@
       "}"
     ]
   },
-  "shortest_graph_01bfs": {
-    "prefix": "_shortest_graph_01bfs",
+  "shortest_graph": {
+    "prefix": "_shortest_graph",
     "description": "重みなしグラフの s から e までの最短距離を 01-bfs で解く",
     "body": [
       "/// 重みなしグラフの s から e までの最短距離を 01-bfs で解く",
@@ -232,34 +232,46 @@
       "}"
     ]
   },
-  "shortest_graph_dijkstra": {
-    "prefix": "_shortest_graph_dijkstra",
+  "shortest_graph_weight": {
+    "prefix": "_shortest_graph_weight",
     "description": "非負の重み付きグラフの s から e までの最短距離をダイクストラ法で解く",
     "body": [
       "/// 非負の重み付きグラフの s から e までの最短距離をダイクストラ法で解く",
-      "fn shortest_graph(graph: &[Vec<(usize, usize)>], s: usize, e: usize) -> Option<usize> {",
-      "\tlet mut set = HashSet::new();",
+      "fn shortest_graph_weight(graph: &[Vec<(usize, usize)>], s: usize, e: usize) -> Option<usize> {",
+      "\tuse std::{cmp::Reverse, collections::BinaryHeap};",
+      "",
+      "\tlet n = graph.len();",
+      "\tlet mut v = vec![None; n];",
+      "",
       "\tlet mut heap = BinaryHeap::new();",
       "\theap.push((Reverse(0), s));",
+      "\tv[s] = Some(0);",
       "",
       "\twhile let Some((Reverse(step), i)) = heap.pop() {",
+      "\t\tif step > v[i].unwrap_or(usize::MAX) {",
+      "\t\t\tcontinue;",
+      "\t\t}",
       "\t\tif i == e {",
       "\t\t\treturn Some(step);",
       "\t\t}",
-      "\t\tif set.insert(i) {",
-      "\t\t\tfor &(j, w) in &graph[i] {",
-      "\t\t\t\tif !set.contains(&j) {",
-      "\t\t\t\t\theap.push((Reverse(step + w), j));",
-      "\t\t\t\t}",
+      "",
+      "\t\tfor &(j, w) in &graph[i] {",
+      "\t\t\tlet step = step + w;",
+      "\t\t\tlet step0 = v[j].unwrap_or(usize::MAX);",
+      "\t\t\tif step < step0 {",
+      "\t\t\t\tv[j] = Some(step);",
+      "\t\t\t\theap.push((Reverse(step), j));",
       "\t\t\t}",
       "\t\t}",
       "\t}",
+      "",
       "\tNone",
       "}"
     ]
   },
   "shortest_all_graph": {
     "prefix": "_shortest_all_graph",
+    "description": "重みなしグラフの s からすべてのノードへの最短距離を 01-bfs で解く",
     "body": [
       "fn shortest_all_ungraph(s: usize, graph: &[Vec<usize>]) -> Vec<Option<usize>> {",
       "\tlet n = graph.len();",
@@ -279,8 +291,40 @@
       "\tv",
       "}",
       ""
-    ],
-    "description": "All shortest path length of undirected graph."
+    ]
+  },
+  "shortest_all_graph_weight": {
+    "prefix": "_shortest_all_graph_weight",
+    "description": "非負の重み付きグラフの s からすべてのノードへの最短距離をダイクストラ法で解く",
+    "body": [
+      "/// 非負の重み付きグラフの s からすべてのノードへの最短距離をダイクストラ法で解く",
+      "fn shortest_all_graph_weight(s: usize, graph: &[Vec<(usize, usize)>]) -> Vec<Option<usize>> {",
+      "\tuse std::{cmp::Reverse, collections::BinaryHeap};",
+      "",
+      "\tlet n = graph.len();",
+      "\tlet mut v = vec![None; n];",
+      "",
+      "\tlet mut heap = BinaryHeap::new();",
+      "\theap.push((Reverse(0), s));",
+      "\tv[s] = Some(0);",
+      "",
+      "\twhile let Some((Reverse(step), i)) = heap.pop() {",
+      "\t\tif step > v[i].unwrap_or(usize::MAX) {",
+      "\t\t\tcontinue;",
+      "\t\t}",
+      "",
+      "\t\tfor &(j, w) in &graph[i] {",
+      "\t\t\tlet step = step + w;",
+      "\t\t\tlet step0 = v[j].unwrap_or(usize::MAX);",
+      "\t\t\tif step < step0 {",
+      "\t\t\t\tv[j] = Some(step);",
+      "\t\t\t\theap.push((Reverse(step), j));",
+      "\t\t\t}",
+      "\t\t}",
+      "\t}",
+      "\tv",
+      "}"
+    ]
   },
   "floyd_warshall": {
     "prefix": "_floyd_warshall",
