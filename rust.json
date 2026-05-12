@@ -452,6 +452,7 @@
   },
   "shortest_2dmap": {
     "prefix": "_shortest_2dmap",
+    "description": "2次元マップ上の sxy から gxy への最短経路を求める",
     "body": [
       "/// 2次元マップ上の sxy から gxy への最短経路を求める",
       "fn shortest_2dmap(m: &mut [Vec<bool>], sxy: &(usize, usize), gxy: &(usize, usize)) -> usize {",
@@ -480,8 +481,21 @@
       "\t}",
       "\tpanic!();",
       "}"
-    ],
-    "description": "Calculate shortest path length of 2D map."
+    ]
+  },
+  "nim_winner": {
+    "prefix": "_nim_winner",
+    "description": "Nim ゲームで先手が勝つかを返す",
+    "body": [
+      "/// Nim ゲームで先手が勝つかを返す",
+      "fn nim_winner(k: usize, a: &[usize]) -> bool {",
+      "\tfn grundy(k: usize, a: usize) -> usize {",
+      "\t\ta % (k + 1)",
+      "\t}",
+      "\tlet result = a.iter().fold(0, |acc, &a| acc ^ grundy(k, a));",
+      "\tresult != 0",
+      "}"
+    ]
   },
   // geometry:
   "partition_point_range": {
