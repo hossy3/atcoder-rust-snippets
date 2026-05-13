@@ -767,12 +767,15 @@
       "}"
     ]
   },
-  "sliding_window_push_max": {
-    "prefix": "_sliding_window_push_max",
+  "slide_step": {
+    "prefix": "_slide_step",
     "description": "スライド最小値・スライド最大値 (Sliding Window Aggregation, SWAG)",
     "body": [
       "/// スライド最小値・スライド最大値 (Sliding Window Aggregation, SWAG)",
-      "fn sliding_window_push_max(deque: &mut VecDeque<(usize, isize)>, i: usize, value: isize) {",
+      "fn slide_step(width: usize, (i, value): (usize, usize), deque: &mut VecDeque<(usize, usize)>) {",
+      "\twhile deque.len() > 0 && i - deque[0].0 >= width {",
+      "\t\tdeque.pop_front();",
+      "\t}",
       "\twhile deque.len() > 0 && deque[deque.len() - 1].1 <= value {",
       "\t\tdeque.pop_back();",
       "\t}",
@@ -800,6 +803,34 @@
     ]
   },
   // misc
+  "prefix_sum": {
+    "prefix": "_prefix_sum",
+    "description": "累積和 (Prefix sum / Cumulative sum)",
+    "body": [
+      "let sum = {",
+      "\tlet mut sum = vec![0; ${0:a}.len() + 1];",
+      "\tfor (i, &${0:a}) in ${0:a}.iter().enumerate() {",
+      "\t\tsum[i + 1] = sum[i] + ${0:a};",
+      "\t}",
+      "\tsum",
+      "};"
+    ]
+  },
+  "prefix_sum_2d": {
+    "prefix": "_prefix_sum_2d",
+    "description": "2次元累積和 (2D prefix sum / 2D cumulative sum)",
+    "body": [
+      "let sum = {",
+      "\tlet mut sum = vec![vec![0; ${0:a}[0].len() + 1]; ${0:a}.len() + 1];",
+      "\tfor (i, ${0:a}) in ${0:a}.iter().enumerate() {",
+      "\t\tfor (j, &${0:a}) in ${0:a}.iter().enumerate() {",
+      "\t\t\tsum[i + 1][j + 1] = sum[i][j + 1] + sum[i + 1][j] - sum[i][j] + ${0:a};",
+      "\t\t}",
+      "\t}",
+      "\tsum",
+      "};"
+    ]
+  },
   "count_grid_by_imos_2d": {
     "prefix": "_count_grid_by_imos_2d",
     "description": "(r1 - r0) * (c1 - c0) の大きさの長方形を重ねた時に、各グリッドに何枚あるかを imos 2D で求める",
